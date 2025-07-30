@@ -1,4 +1,5 @@
 
+
 import api from "./api";
 import { z } from "zod";
 import { getUserById, type UserDto } from "./auth";
@@ -96,3 +97,4 @@ export async function getOpenRides(): Promise<RideWithDriver[]> {
     throw new Error('Could not fetch open rides.');
   }
 }
+
