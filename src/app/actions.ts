@@ -1,9 +1,10 @@
 'use server';
 
 import { suggestMeetingPoint, type SuggestMeetingPointOutput } from '@/ai/flows/suggest-meeting-point';
+import { predictFare, type PredictFareOutput } from '@/ai/flows/predict-fare';
 import { z } from 'zod';
 
-export interface FormState {
+export interface MeetingPointFormState {
   status: 'idle' | 'success' | 'error';
   message: string;
   result: SuggestMeetingPointOutput | null;
@@ -14,9 +15,9 @@ const SuggestMeetingPointClientSchema = z.object({
 });
 
 export async function suggestMeetingPointAction(
-  prevState: FormState,
+  prevState: MeetingPointFormState,
   formData: FormData
-): Promise<FormState> {
+): Promise<MeetingPointFormState> {
   const locations = formData.getAll('locations') as string[];
   const validatedFields = SuggestMeetingPointClientSchema.safeParse({ locations: locations.filter(l => l) });
 
@@ -40,6 +41,54 @@ export async function suggestMeetingPointAction(
     return {
       status: 'error',
       message: 'An error occurred while suggesting a meeting point. Please try again.',
+      result: null,
+    };
+  }
+}
+
+
+export interface FareEstimatorFormState {
+  status: 'idle' | 'success' | 'error';
+  message: string;
+  result: PredictFareOutput | null;
+}
+
+const PredictFareClientSchema = z.object({
+  startLocation: z.string().min(3, 'Start location must be at least 3 characters long.'),
+  endLocation: z.string().min(3, 'End location must be at least 3 characters long.'),
+});
+
+export async function predictFareAction(
+  prevState: FareEstimatorFormState,
+  formData: FormData
+): Promise<FareEstimatorFormState> {
+  const startLocation = formData.get('startLocation') as string;
+  const endLocation = formData.get('endLocation') as string;
+  
+  const validatedFields = PredictFareClientSchema.safeParse({ startLocation, endLocation });
+
+  if (!validatedFields.success) {
+    const errors = validatedFields.error.flatten().fieldErrors;
+    const errorMessage = errors.startLocation?.[0] || errors.endLocation?.[0] || 'Validation failed.';
+    return {
+      status: 'error',
+      message: errorMessage,
+      result: null,
+    };
+  }
+
+  try {
+    const result = await predictFare(validatedFields.data);
+    return {
+      status: 'success',
+      message: 'Successfully estimated fare.',
+      result,
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      status: 'error',
+      message: 'An error occurred while estimating the fare. Please try again.',
       result: null,
     };
   }
