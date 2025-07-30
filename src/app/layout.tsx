@@ -4,8 +4,8 @@ import { AppShell } from '@/components/app-shell';
 import { Toaster } from '@/components/ui/toaster';
 
 export const metadata: Metadata = {
-  title: 'EcoRide Share',
-  description: 'Your eco-friendly carpooling solution.',
+  title: 'Fuelpool',
+  description: 'Your carpooling solution.',
 };
 
 export default function RootLayout({

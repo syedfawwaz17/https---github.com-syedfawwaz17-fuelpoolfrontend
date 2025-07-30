@@ -83,7 +83,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <div className="bg-primary text-primary-foreground p-2 rounded-lg">
               <Leaf size={24} />
             </div>
-            <h1 className="text-xl font-semibold font-headline text-primary">EcoRide Share</h1>
+            <h1 className="text-xl font-semibold font-headline text-primary">Fuelpool</h1>
           </div>
         </SidebarHeader>
         <SidebarContent>

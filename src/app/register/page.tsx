@@ -57,7 +57,7 @@ export default function RegisterPage() {
                   <Leaf size={32} />
                 </div>
             </div>
-          <CardTitle className="text-2xl font-headline">Join EcoRide Share</CardTitle>
+          <CardTitle className="text-2xl font-headline">Join Fuelpool</CardTitle>
           <CardDescription>Create an account to start sharing rides</CardDescription>
         </CardHeader>
         <CardContent>
