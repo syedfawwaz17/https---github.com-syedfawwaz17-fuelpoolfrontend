@@ -12,6 +12,7 @@ import { DollarSign, User, CreditCard, Star, PlusCircle, Car, Loader2 } from 'lu
 import { getUser, type UserDto } from '@/lib/auth';
 import { getRideHistory, type RideHistoryEntry } from '@/lib/bookings';
 import { getCarsByOwner, type CarDto } from '@/lib/cars';
+import { getReviewsForUser, type Review } from '@/lib/reviews';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 
@@ -21,11 +22,6 @@ const payments = [
     { id: 'pay2', timestamp: '2024-07-22T19:30:00Z', amount: 30.00, status: 'completed', method: 'Card', bookingId: 'booking2' },
     { id: 'pay3', timestamp: '2024-08-01T12:00:00Z', amount: 25.00, status: 'failed', method: 'UPI', bookingId: 'booking3' },
 ];
-
-const reviews = [
-    { id: 'rev1', rideId: '1', reviewer: { name: 'Alex Johnson', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704a' }, rating: 5, reviewText: 'Great ride! Very punctual and friendly.', timestamp: '2024-07-21T10:00:00Z' },
-    { id: 'rev2', rideId: '2', reviewer: { name: 'Samantha Bee', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704b' }, rating: 4, reviewText: 'Smooth trip, clean car. Would recommend.', timestamp: '2024-07-23T18:30:00Z' },
-]
 
 function StarRating({ rating }: { rating: number }) {
     return (
@@ -41,8 +37,10 @@ export default function DashboardPage() {
   const [user, setUser] = React.useState<UserDto | null>(null);
   const [rideHistory, setRideHistory] = React.useState<RideHistoryEntry[]>([]);
   const [userCars, setUserCars] = React.useState<CarDto[]>([]);
+  const [reviews, setReviews] = React.useState<Review[]>([]);
   const [isLoadingHistory, setIsLoadingHistory] = React.useState(true);
   const [isLoadingCars, setIsLoadingCars] = React.useState(true);
+  const [isLoadingReviews, setIsLoadingReviews] = React.useState(true);
   const [isClient, setIsClient] = React.useState(false);
 
   React.useEffect(() => {
@@ -51,6 +49,7 @@ export default function DashboardPage() {
     if (userData) {
       setUser(userData);
       fetchRideHistory(userData.id);
+      fetchUserReviews(userData.id);
       if (userData.userType === 'driver') {
         fetchUserCars(userData.id);
       } else {
@@ -59,6 +58,7 @@ export default function DashboardPage() {
     } else {
         setIsLoadingHistory(false);
         setIsLoadingCars(false);
+        setIsLoadingReviews(false);
     }
   }, []);
 
@@ -85,6 +85,18 @@ export default function DashboardPage() {
         setIsLoadingCars(false);
     }
   }
+
+  const fetchUserReviews = async (userId: string) => {
+    setIsLoadingReviews(true);
+    try {
+      const userReviews = await getReviewsForUser(userId);
+      setReviews(userReviews);
+    } catch (error) {
+      console.error("Failed to fetch user reviews", error);
+    } finally {
+      setIsLoadingReviews(false);
+    }
+  };
 
   const getStatusVariant = (status: string) => {
     switch (status?.toLowerCase()) {
@@ -260,24 +272,35 @@ export default function DashboardPage() {
               <CardDescription>Feedback you've received from other users.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              {reviews.map((review) => (
-                <div key={review.id} className="flex gap-4">
-                  <Avatar>
-                    <AvatarImage src={review.reviewer.avatar} alt={review.reviewer.name} />
-                    <AvatarFallback>{review.reviewer.name.charAt(0)}</AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1">
-                    <div className="flex justify-between items-center">
-                       <p className="font-semibold">{review.reviewer.name}</p>
-                       <StarRating rating={review.rating} />
-                    </div>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      {formatLongDate(review.timestamp)}
-                    </p>
-                    <p className="mt-2 text-foreground bg-slate-50 p-3 rounded-md border">{review.reviewText}</p>
+              {isLoadingReviews ? (
+                  <div className="flex justify-center items-center h-40">
+                    <Loader2 className="mr-2 h-8 w-8 animate-spin" />
+                    <p>Loading your reviews...</p>
                   </div>
-                </div>
-              ))}
+              ) : (
+                reviews.length > 0 ? reviews.map((review) => (
+                  <div key={review.id} className="flex gap-4">
+                    <Avatar>
+                      <AvatarImage src={review.reviewer.profilePhotoUrl} alt={review.reviewer.name} />
+                      <AvatarFallback>{review.reviewer.name.charAt(0)}</AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1">
+                      <div className="flex justify-between items-center">
+                         <p className="font-semibold">{review.reviewer.name}</p>
+                         <StarRating rating={review.rating} />
+                      </div>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {formatLongDate(review.timestamp)}
+                      </p>
+                      <p className="mt-2 text-foreground bg-slate-50 p-3 rounded-md border">{review.reviewText}</p>
+                    </div>
+                  </div>
+                )) : (
+                    <div className="text-center text-muted-foreground h-24 flex items-center justify-center">
+                        <p>You have not received any reviews yet.</p>
+                    </div>
+                )
+              )}
             </CardContent>
           </Card>
         </TabsContent>
