@@ -1,5 +1,3 @@
-
-
 import api from "./api";
 import { z } from "zod";
 import { getUserById, type UserDto } from "./auth";
@@ -9,11 +7,33 @@ export const LocationSchema = z.object({
   coordinates: z.array(z.number()).optional(),
 });
 
+// Zod schema for the departureTime object
+export const DepartureTimeSchema = z.object({
+  seconds: z.number(),
+  nanos: z.number(),
+});
+
+// Function to convert the departureTime object to an ISO string
+const departureTimeToIsoString = (departureTime: z.infer<typeof DepartureTimeSchema>): string => {
+  return new Date(departureTime.seconds * 1000).toISOString();
+};
+
+
 export const RideSchema = z.object({
   id: z.string(),
   pickupLocation: LocationSchema,
   destination: LocationSchema,
-  departureTime: z.string(), // ISO string
+  // Use a transform to convert the object to an ISO string upon parsing
+  departureTime: z.preprocess((arg) => {
+    if (typeof arg === 'string') {
+      return arg; // Allow plain strings for flexibility
+    }
+    const parsed = DepartureTimeSchema.safeParse(arg);
+    if (parsed.success) {
+      return departureTimeToIsoString(parsed.data);
+    }
+    return arg;
+  }, z.string()),
   farePerSeat: z.number(),
   driverId: z.string(),
   ladiesOnly: z.boolean().optional(),
@@ -97,4 +117,3 @@ export async function getOpenRides(): Promise<RideWithDriver[]> {
     throw new Error('Could not fetch open rides.');
   }
 }
-
