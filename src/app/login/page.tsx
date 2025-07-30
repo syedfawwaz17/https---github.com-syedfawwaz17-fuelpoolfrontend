@@ -31,17 +31,14 @@ export default function LoginPage() {
     setIsLoading(true);
     try {
       await login(data);
-      toast({
-        title: "Login Successful",
-        description: "Welcome back!",
-      });
+      // The success toast is removed to provide a smoother redirect experience.
+      // The user will be redirected immediately upon success.
       router.push('/dashboard');
-      router.refresh(); // Triggers a refresh of the layout to update auth state
     } catch (error: any) {
       toast({
         variant: "destructive",
         title: "Login Failed",
-        description: error.response?.data?.message || "An unexpected error occurred.",
+        description: error.response?.data?.message || "An unexpected error occurred. Please try again.",
       });
     } finally {
       setIsLoading(false);

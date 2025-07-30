@@ -41,7 +41,7 @@ export default function RegisterPage() {
       toast({
         variant: "destructive",
         title: "Registration Failed",
-        description: error.response?.data?.message || "An unexpected error occurred.",
+        description: error.response?.data?.message || "An unexpected error occurred. Please try again.",
       });
     } finally {
       setIsLoading(false);

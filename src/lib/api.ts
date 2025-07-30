@@ -14,20 +14,25 @@ const api = axios.create({
 api.interceptors.request.use((config) => {
   if (typeof window !== "undefined") {
     const token = localStorage.getItem("token");
-    if (token) config.headers["Authorization"] = `Bearer ${token}`;
+    if (token) {
+      config.headers["Authorization"] = `Bearer ${token}`;
+    }
   }
   return config;
 });
 
 // (Optional) Logout user on 401 (Unauthorized)
-api.interceptors.response.use(undefined, (err) => {
-  if (err.response?.status === 401) {
-    localStorage.removeItem("token");
-    if (typeof window !== "undefined") {
-      window.location.href = "/login";
+api.interceptors.response.use(
+  (response) => response,
+  (err) => {
+    if (err.response?.status === 401) {
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("token");
+        window.location.href = "/login";
+      }
     }
+    return Promise.reject(err);
   }
-  return Promise.reject(err);
-});
+);
 
 export default api;

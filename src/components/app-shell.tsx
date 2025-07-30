@@ -29,9 +29,13 @@ import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Leaf, Search, Map, LayoutDashboard, LogIn, User, LogOut, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getToken, logout } from '@/lib/auth';
+import { useToast } from '@/hooks/use-toast';
+
 
 const useAuth = () => {
   const [isAuthenticated, setIsAuthenticated] = React.useState(false);
+  const { toast } = useToast();
+  const router = useRouter();
 
   React.useEffect(() => {
     const token = getToken();
@@ -39,8 +43,11 @@ const useAuth = () => {
   }, []);
 
   const handleLogout = () => {
-    logout();
-    setIsAuthenticated(false);
+    logout(); // This will clear the token and redirect
+    toast({
+      title: "Logged Out",
+      description: "You have been successfully logged out.",
+    });
   };
 
   return { isAuthenticated, logout: handleLogout };
@@ -52,14 +59,18 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   const menuItems = [
-    { href: '/', label: 'Ride Search', icon: Search },
-    { href: '/smart-route', label: 'Smart Route', icon: Map },
+    { href: '/', label: 'Ride Search', icon: Search, auth: false },
+    { href: '/smart-route', label: 'Smart Route', icon: Map, auth: false },
     { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, auth: true },
   ];
 
+  const publicPages = ['/login', '/register'];
+
   React.useEffect(() => {
-    const protectedRoutes = menuItems.filter(item => item.auth).map(item => item.href);
-    if (!isAuthenticated && protectedRoutes.includes(pathname)) {
+    const currentRoute = menuItems.find(item => item.href === pathname);
+    const isProtectedRoute = currentRoute?.auth;
+
+    if (!isAuthenticated && isProtectedRoute && !publicPages.includes(pathname)) {
       router.push('/login');
     }
   }, [isAuthenticated, pathname, router, menuItems]);
@@ -138,6 +149,12 @@ function Header() {
 
 function UserMenu({ mobile = false }: { mobile?: boolean }) {
   const { logout } = useAuth();
+  const router = useRouter();
+  
+  const handleLogout = () => {
+    logout();
+  }
+
   const commonClasses = "flex items-center gap-2";
 
   if (mobile) {
@@ -145,7 +162,7 @@ function UserMenu({ mobile = false }: { mobile?: boolean }) {
       <div className={cn("md:hidden", commonClasses)}>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Avatar className="h-9 w-9">
+            <Avatar className="h-9 w-9 cursor-pointer">
               <AvatarImage src="https://i.pravatar.cc/150?u=a042581f4e29026704d" alt="User" />
               <AvatarFallback>U</AvatarFallback>
             </Avatar>
@@ -153,10 +170,10 @@ function UserMenu({ mobile = false }: { mobile?: boolean }) {
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem asChild><Link href="/dashboard">Dashboard</Link></DropdownMenuItem>
-            <DropdownMenuItem asChild><Link href="/dashboard">Settings</Link></DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => router.push('/dashboard')}>Dashboard</DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => router.push('/dashboard')}>Settings</DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={logout}>
+            <DropdownMenuItem onSelect={handleLogout}>
               <LogOut className="mr-2 h-4 w-4" />
               <span>Log out</span>
             </DropdownMenuItem>
@@ -179,13 +196,19 @@ function UserMenu({ mobile = false }: { mobile?: boolean }) {
                 <ChevronDown size={16} />
             </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
+        <DropdownMenuContent align="end" className="w-56">
           <DropdownMenuLabel>My Account</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem asChild><Link href="/dashboard" className="flex items-center"><LayoutDashboard className="mr-2 h-4 w-4" />Dashboard</Link></DropdownMenuItem>
-          <DropdownMenuItem asChild><Link href="/dashboard" className="flex items-center"><User className="mr-2 h-4 w-4" />Profile</Link></DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => router.push('/dashboard')}>
+            <LayoutDashboard className="mr-2 h-4 w-4" />
+            <span>Dashboard</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => router.push('/dashboard')}>
+            <User className="mr-2 h-4 w-4" />
+            <span>Profile</span>
+          </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={logout} className="text-red-500 focus:text-red-500 focus:bg-red-50">
+          <DropdownMenuItem onSelect={handleLogout} className="text-red-500 focus:text-red-500 focus:bg-red-50 cursor-pointer">
             <LogOut className="mr-2 h-4 w-4" />
             <span>Log out</span>
           </DropdownMenuItem>
