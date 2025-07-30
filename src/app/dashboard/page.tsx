@@ -11,7 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { DollarSign, User, CreditCard, Star, MessageSquare, PlusCircle, Car, Loader2 } from 'lucide-react';
 import { getUser, type UserDto } from '@/lib/auth';
-import { getBookingsByRider, type RideHistoryEntry } from '@/lib/bookings';
+import { getRideHistory, type RideHistoryEntry } from '@/lib/bookings';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 
@@ -62,7 +62,7 @@ export default function DashboardPage() {
   const fetchRideHistory = async (riderId: string) => {
     setIsLoading(true);
     try {
-        const bookings = await getBookingsByRider(riderId);
+        const bookings = await getRideHistory(riderId);
         setRideHistory(bookings);
     } catch (error) {
         console.error("Failed to fetch ride history", error);
@@ -98,7 +98,7 @@ export default function DashboardPage() {
 
   const formatLongDate = (dateString: string) => {
     if (!isClient) return null;
-    return new Date(dateString).toLocaleDateString('en-US', { 
+    return new Date(dateString).toLocaleDateString('en-GB', { 
         month: 'long', 
         day: 'numeric', 
         year: 'numeric' 
