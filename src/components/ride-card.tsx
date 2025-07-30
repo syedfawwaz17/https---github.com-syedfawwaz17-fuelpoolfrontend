@@ -24,6 +24,7 @@ export function RideCard({ from, to, date, price, driverName, driverAvatar, imag
             src={image}
             alt={`Ride from ${from} to ${to}`}
             fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             className="rounded-t-xl object-cover"
             data-ai-hint={dataAiHint}
           />
