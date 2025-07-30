@@ -10,26 +10,17 @@ import { Calendar, DollarSign, MapPin, Shield, Loader2 } from 'lucide-react';
 import { Badge } from './ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { createPayment } from '@/lib/payments';
+import type { Ride } from '@/lib/rides';
 
-type Location = {
-  address: string;
-  coordinates?: number[];
-};
-
-export type Ride = {
-  id: string;
-  pickupLocation: Location;
-  destination: Location;
-  departureTime: string; // ISO string
-  farePerSeat: number;
+export type RideWithDriver = Ride & {
   driver: {
     name: string;
     profilePhotoUrl?: string;
   };
-  image: string; 
+  image: string;
   dataAiHint?: string;
-  ladiesOnly?: boolean;
 };
+
 
 // Placeholder function until booking logic is fully implemented
 async function createBooking(rideId: string) {
@@ -39,7 +30,7 @@ async function createBooking(rideId: string) {
   return { id: `booking-${rideId}-${Date.now()}` };
 }
 
-export function RideCard(ride: Ride) {
+export function RideCard(ride: RideWithDriver) {
   const { id, pickupLocation, destination, departureTime, farePerSeat, driver, image, dataAiHint, ladiesOnly } = ride;
   const { toast } = useToast();
   const [isBooking, setIsBooking] = React.useState(false);

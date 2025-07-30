@@ -28,6 +28,8 @@ export type UserDto = {
     gender?: 'male' | 'female' | 'other';
 }
 
+const userCache = new Map<string, UserDto>();
+
 export async function login(data: LoginInput) {
   const response = await api.post("/auth/login", data);
   if (response.data.token) {
@@ -54,6 +56,35 @@ export async function getMe(): Promise<UserDto | null> {
         return response.data;
     } catch (error) {
         console.error("Failed to fetch user data", error);
+        return null;
+    }
+}
+
+export async function getUserById(userId: string): Promise<UserDto | null> {
+    if (userCache.has(userId)) {
+        return userCache.get(userId)!;
+    }
+    try {
+        // In a real app, you would have an endpoint like /api/users/{id}
+        // This part needs a real backend endpoint to be fully functional.
+        // For now we will mock this, assuming a real API would be at /api/users/{userId}
+        const mockUser: UserDto = {
+            id: userId,
+            name: "An anonymous user",
+            email: "anonymous@example.com",
+            profilePhotoUrl: `https://i.pravatar.cc/150?u=${userId}`
+        }
+        // In a real implementation:
+        // const response = await api.get(`/users/${userId}`);
+        // const user = response.data;
+        // userCache.set(userId, user);
+        // return user;
+
+        userCache.set(userId, mockUser);
+        return mockUser;
+
+    } catch (error) {
+        console.error(`Failed to fetch user ${userId}`, error);
         return null;
     }
 }

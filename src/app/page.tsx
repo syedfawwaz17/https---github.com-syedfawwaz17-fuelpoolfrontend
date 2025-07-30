@@ -1,93 +1,42 @@
-import { RideCard, type Ride } from '@/components/ride-card';
+"use client";
+
+import * as React from 'react';
+import { RideCard, type RideWithDriver } from '@/components/ride-card';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Calendar, MapPin } from 'lucide-react';
-
-const rides: Ride[] = [
-  {
-    id: '1',
-    pickupLocation: { address: 'San Francisco, CA', coordinates: [-122.4194, 37.7749] },
-    destination: { address: 'Los Angeles, CA', coordinates: [-118.2437, 34.0522] },
-    departureTime: '2024-08-15T09:00:00Z',
-    farePerSeat: 45,
-    driver: {
-        name: 'Jane Doe',
-        profilePhotoUrl: 'https://i.pravatar.cc/150?u=a042581f4e29026704d',
-    },
-    image: 'https://placehold.co/600x400.png',
-    dataAiHint: 'city highway',
-    ladiesOnly: true,
-  },
-  {
-    id: '2',
-    pickupLocation: { address: 'New York, NY', coordinates: [-74.006, 40.7128] },
-    destination: { address: 'Boston, MA', coordinates: [-71.0589, 42.3601] },
-    departureTime: '2024-08-16T10:00:00Z',
-    farePerSeat: 30,
-    driver: {
-        name: 'John Smith',
-        profilePhotoUrl: 'https://i.pravatar.cc/150?u=a042581f4e29026704e',
-    },
-    image: 'https://placehold.co/600x400.png',
-    dataAiHint: 'coastal road',
-  },
-  {
-    id: '3',
-    pickupLocation: { address: 'Chicago, IL', coordinates: [-87.6298, 41.8781] },
-    destination: { address: 'Detroit, MI', coordinates: [-83.0458, 42.3314] },
-    departureTime: '2024-08-18T14:00:00Z',
-    farePerSeat: 25,
-    driver: {
-        name: 'Emily White',
-        profilePhotoUrl: 'https://i.pravatar.cc/150?u=a042581f4e29026704f',
-    },
-    image: 'https://placehold.co/600x400.png',
-    dataAiHint: 'urban landscape',
-    ladiesOnly: true,
-  },
-  {
-    id: '4',
-    pickupLocation: { address: 'Miami, FL', coordinates: [-80.1918, 25.7617] },
-    destination: { address: 'Orlando, FL', coordinates: [-81.3792, 28.5383] },
-    departureTime: '2024-08-20T11:30:00Z',
-    farePerSeat: 20,
-    driver: {
-        name: 'Michael Brown',
-        profilePhotoUrl: 'https://i.pravatar.cc/150?u=a042581f4e29026704g',
-    },
-    image: 'https://placehold.co/600x400.png',
-    dataAiHint: 'sunny highway',
-  },
-    {
-    id: '5',
-    pickupLocation: { address: 'Denver, CO', coordinates: [-104.9903, 39.7392] },
-    destination: { address: 'Salt Lake City, UT', coordinates: [-111.8910, 40.7608] },
-    departureTime: '2024-08-22T08:00:00Z',
-    farePerSeat: 55,
-    driver: {
-        name: 'Sarah Green',
-        profilePhotoUrl: 'https://i.pravatar.cc/150?u=a042581f4e29026704h',
-    },
-    image: 'https://placehold.co/600x400.png',
-    dataAiHint: 'mountain road',
-  },
-  {
-    id: '6',
-    pickupLocation: { address: 'Seattle, WA', coordinates: [-122.3321, 47.6062] },
-    destination: { address: 'Portland, OR', coordinates: [-122.6765, 45.5231] },
-    departureTime: '2024-08-25T13:00:00Z',
-    farePerSeat: 15,
-    driver: {
-        name: 'David Lee',
-        profilePhotoUrl: 'https://i.pravatar.cc/150?u=a042581f4e29026704i',
-    },
-    image: 'https://placehold.co/600x400.png',
-    dataAiHint: 'forest drive',
-  },
-];
+import { Calendar, MapPin, Loader2 } from 'lucide-react';
+import { getOpenRides } from '@/lib/rides';
 
 export default function Home() {
+  const [rides, setRides] = React.useState<RideWithDriver[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    const fetchRides = async () => {
+      try {
+        const openRides = await getOpenRides();
+        // Add placeholder images and hints for the demo
+        const ridesWithImages = openRides.map((ride, index) => {
+          const hints = ['city highway', 'coastal road', 'urban landscape', 'sunny highway', 'mountain road', 'forest drive'];
+          return {
+            ...ride,
+            image: 'https://placehold.co/600x400.png',
+            dataAiHint: hints[index % hints.length],
+          };
+        });
+        setRides(ridesWithImages);
+      } catch (error) {
+        console.error("Failed to fetch open rides", error);
+        // Handle error appropriately in a real app (e.g., show a toast)
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchRides();
+  }, []);
+
   return (
     <div className="flex flex-col gap-8">
       <div className="p-6 md:p-10 flex flex-col items-center justify-center text-center bg-card rounded-xl shadow-md border">
@@ -120,11 +69,24 @@ export default function Home() {
 
       <div className="px-4 md:px-0">
         <h2 className="text-3xl font-bold mb-6 font-headline">Available Rides</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {rides.map((ride) => (
-            <RideCard key={ride.id} {...ride} />
-          ))}
-        </div>
+        {isLoading ? (
+          <div className="flex justify-center items-center h-64">
+            <Loader2 className="mr-2 h-12 w-12 animate-spin text-primary" />
+            <p className="text-lg text-muted-foreground">Finding available rides...</p>
+          </div>
+        ) : (
+          rides.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {rides.map((ride) => (
+                <RideCard key={ride.id} {...ride} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center text-muted-foreground h-40 flex items-center justify-center">
+                <p>No open rides available at the moment. Please check back later!</p>
+            </div>
+          )
+        )}
       </div>
     </div>
   );
