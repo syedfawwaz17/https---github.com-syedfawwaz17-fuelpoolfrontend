@@ -9,16 +9,11 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { DollarSign, User, CreditCard, Star, MessageSquare, PlusCircle, Car } from 'lucide-react';
+import { DollarSign, User, CreditCard, Star, MessageSquare, PlusCircle, Car, Loader2 } from 'lucide-react';
 import { getUser, type UserDto } from '@/lib/auth';
+import { getBookingsByRider, type RideHistoryEntry } from '@/lib/bookings';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
-
-const rideHistory = [
-  { id: '1', from: 'San Francisco, CA', to: 'Los Angeles, CA', date: '2024-07-20', price: 45, status: 'Completed' },
-  { id: '2', from: 'New York, NY', to: 'Boston, MA', date: '2024-07-22', price: 30, status: 'Completed' },
-  { id: '3', from: 'Chicago, IL', to: 'Detroit, MI', date: '2024-08-05', price: 25, status: 'Upcoming' },
-];
 
 const payments = [
     { id: 'pay1', timestamp: '2024-07-20T18:00:00Z', amount: 45.00, status: 'completed', method: 'Card', bookingId: 'booking1' },
@@ -49,6 +44,8 @@ function StarRating({ rating }: { rating: number }) {
 
 export default function DashboardPage() {
   const [user, setUser] = React.useState<UserDto | null>(null);
+  const [rideHistory, setRideHistory] = React.useState<RideHistoryEntry[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
   const [isClient, setIsClient] = React.useState(false);
 
   React.useEffect(() => {
@@ -56,19 +53,35 @@ export default function DashboardPage() {
     const userData = getUser();
     if (userData) {
       setUser(userData);
+      fetchRideHistory(userData.id);
+    } else {
+        setIsLoading(false);
     }
   }, []);
 
+  const fetchRideHistory = async (riderId: string) => {
+    setIsLoading(true);
+    try {
+        const bookings = await getBookingsByRider(riderId);
+        setRideHistory(bookings);
+    } catch (error) {
+        console.error("Failed to fetch ride history", error);
+    } finally {
+        setIsLoading(false);
+    }
+  }
+
   const getStatusVariant = (status: string) => {
-    switch (status.toLowerCase()) {
+    switch (status?.toLowerCase()) {
       case 'completed':
+      case 'confirmed':
         return 'secondary';
       case 'failed':
-        return 'destructive';
-      case 'upcoming':
-        return 'default';
       case 'cancelled':
         return 'destructive';
+      case 'upcoming':
+      case 'pending':
+        return 'default';
       default:
         return 'outline';
     }
@@ -111,30 +124,43 @@ export default function DashboardPage() {
               <CardDescription>A log of your past and upcoming journeys.</CardDescription>
             </CardHeader>
             <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>From</TableHead>
-                    <TableHead>To</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Price</TableHead>
-                    <TableHead>Status</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {rideHistory.map((ride) => (
-                    <TableRow key={ride.id}>
-                      <TableCell>{ride.from}</TableCell>
-                      <TableCell>{ride.to}</TableCell>
-                      <TableCell>{formatDate(ride.date)}</TableCell>
-                      <TableCell>${ride.price}</TableCell>
-                      <TableCell>
-                        <Badge variant={getStatusVariant(ride.status)}>{ride.status}</Badge>
-                      </TableCell>
+              {isLoading ? (
+                 <div className="flex justify-center items-center h-40">
+                    <Loader2 className="mr-2 h-8 w-8 animate-spin" />
+                    <p>Loading your ride history...</p>
+                 </div>
+              ) : (
+                <Table>
+                    <TableHeader>
+                    <TableRow>
+                        <TableHead>From</TableHead>
+                        <TableHead>To</TableHead>
+                        <TableHead>Date</TableHead>
+                        <TableHead>Price</TableHead>
+                        <TableHead>Status</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                    </TableHeader>
+                    <TableBody>
+                    {rideHistory.length > 0 ? rideHistory.map((ride) => (
+                        <TableRow key={ride.bookingId}>
+                        <TableCell>{ride.pickupLocation}</TableCell>
+                        <TableCell>{ride.destination}</TableCell>
+                        <TableCell>{formatDate(ride.departureTime)}</TableCell>
+                        <TableCell>${ride.farePaid.toFixed(2)}</TableCell>
+                        <TableCell>
+                            <Badge variant={getStatusVariant(ride.status)}>{ride.status}</Badge>
+                        </TableCell>
+                        </TableRow>
+                    )) : (
+                        <TableRow>
+                            <TableCell colSpan={5} className="text-center h-24">
+                                You have no ride history.
+                            </TableCell>
+                        </TableRow>
+                    )}
+                    </TableBody>
+                </Table>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
