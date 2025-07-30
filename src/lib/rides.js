@@ -23,6 +23,7 @@ const departureTimeToIsoString = (departureTime) => {
 
 export const RideSchema = z.object({
   id: z.string(),
+  driverId: z.string(),
   pickupLocation: LocationSchema,
   destination: LocationSchema,
   // Use a transform to convert the object to an ISO string upon parsing
@@ -37,7 +38,7 @@ export const RideSchema = z.object({
     return arg;
   }, z.string()),
   farePerSeat: z.number(),
-  driverId: z.string(),
+  availableSeats: z.number(),
   ladiesOnly: z.boolean().optional(),
   fuelType: z.string().optional().nullable(),
 });
