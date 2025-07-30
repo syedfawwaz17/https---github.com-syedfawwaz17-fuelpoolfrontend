@@ -4,25 +4,40 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Calendar, DollarSign, MapPin } from 'lucide-react';
 
+type Location = {
+  address: string;
+  coordinates?: number[];
+};
+
+// This type is a combination of RideDto and some user details
+// for display purposes. In a real app, you might fetch driver details
+// separately or have the backend join them.
 export type Ride = {
-  from: string;
-  to: string;
-  date: string;
-  price: number;
-  driverName: string;
-  driverAvatar: string;
-  image: string;
+  id: string;
+  pickupLocation: Location;
+  destination: Location;
+  departureTime: string; // ISO string
+  farePerSeat: number;
+  driver: {
+    name: string;
+    profilePhotoUrl?: string;
+  };
+  image: string; // Keep for UI, can be based on destination
   dataAiHint?: string;
 };
 
-export function RideCard({ from, to, date, price, driverName, driverAvatar, image, dataAiHint }: Ride) {
+export function RideCard(ride: Ride) {
+  const { pickupLocation, destination, departureTime, farePerSeat, driver, image, dataAiHint } = ride;
+  const driverName = driver?.name || 'Driver';
+  const driverAvatar = driver?.profilePhotoUrl || '';
+  
   return (
     <Card className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 rounded-xl bg-card/60 backdrop-blur-xl border border-white/20">
       <CardHeader className="p-0">
         <div className="relative h-48 w-full">
           <Image
             src={image}
-            alt={`Ride from ${from} to ${to}`}
+            alt={`Ride from ${pickupLocation.address} to ${destination.address}`}
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             className="rounded-t-xl object-cover"
@@ -31,15 +46,15 @@ export function RideCard({ from, to, date, price, driverName, driverAvatar, imag
         </div>
       </CardHeader>
       <CardContent className="p-4">
-        <CardTitle className="text-lg font-bold font-headline mb-2">{to}</CardTitle>
+        <CardTitle className="text-lg font-bold font-headline mb-2">{destination.address}</CardTitle>
         <div className="text-sm text-muted-foreground">
           <div className="flex items-center gap-2 mb-1">
             <MapPin size={16} className="text-primary" />
-            <span>From: {from}</span>
+            <span>From: {pickupLocation.address}</span>
           </div>
           <div className="flex items-center gap-2">
             <Calendar size={16} className="text-primary" />
-            <span>{new Date(date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
+            <span>{new Date(departureTime).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
           </div>
         </div>
         <div className="flex items-center justify-between mt-4">
@@ -52,7 +67,7 @@ export function RideCard({ from, to, date, price, driverName, driverAvatar, imag
           </div>
           <div className="flex items-center gap-1 text-lg font-bold text-primary">
             <DollarSign size={20} />
-            <span>{price}</span>
+            <span>{farePerSeat}</span>
           </div>
         </div>
       </CardContent>
