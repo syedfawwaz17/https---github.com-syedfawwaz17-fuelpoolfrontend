@@ -1,3 +1,4 @@
+
 import api from "./api";
 import { z } from "zod";
 import { getUserById, type UserDto } from "./auth";
@@ -15,6 +16,7 @@ export const RideSchema = z.object({
   farePerSeat: z.number(),
   driverId: z.string(),
   ladiesOnly: z.boolean().optional(),
+  fuelType: z.string().optional().nullable(),
 });
 
 export type Ride = z.infer<typeof RideSchema>;
