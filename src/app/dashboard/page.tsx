@@ -49,8 +49,10 @@ function StarRating({ rating }: { rating: number }) {
 
 export default function DashboardPage() {
   const [user, setUser] = React.useState<UserDto | null>(null);
+  const [isClient, setIsClient] = React.useState(false);
 
   React.useEffect(() => {
+    setIsClient(true);
     const userData = getUser();
     if (userData) {
       setUser(userData);
@@ -70,6 +72,24 @@ export default function DashboardPage() {
       default:
         return 'outline';
     }
+  }
+
+  const formatDate = (dateString: string) => {
+    if (!isClient) return null;
+    return new Date(dateString).toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+  };
+
+  const formatLongDate = (dateString: string) => {
+    if (!isClient) return null;
+    return new Date(dateString).toLocaleDateString('en-US', { 
+        month: 'long', 
+        day: 'numeric', 
+        year: 'numeric' 
+    });
   }
 
   return (
@@ -106,7 +126,7 @@ export default function DashboardPage() {
                     <TableRow key={ride.id}>
                       <TableCell>{ride.from}</TableCell>
                       <TableCell>{ride.to}</TableCell>
-                      <TableCell>{new Date(ride.date).toLocaleDateString()}</TableCell>
+                      <TableCell>{formatDate(ride.date)}</TableCell>
                       <TableCell>${ride.price}</TableCell>
                       <TableCell>
                         <Badge variant={getStatusVariant(ride.status)}>{ride.status}</Badge>
@@ -165,7 +185,7 @@ export default function DashboardPage() {
                 <TableBody>
                   {payments.map((payment) => (
                     <TableRow key={payment.id}>
-                      <TableCell>{new Date(payment.timestamp).toLocaleDateString()}</TableCell>
+                      <TableCell>{formatDate(payment.timestamp)}</TableCell>
                       <TableCell className="font-mono text-xs">{payment.bookingId}</TableCell>
                       <TableCell>{payment.method}</TableCell>
                       <TableCell>
@@ -209,7 +229,7 @@ export default function DashboardPage() {
                        <StarRating rating={review.rating} />
                     </div>
                     <p className="text-sm text-muted-foreground mt-1">
-                      {new Date(review.timestamp).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                      {formatLongDate(review.timestamp)}
                     </p>
                     <p className="mt-2 text-foreground bg-slate-50 p-3 rounded-md border">{review.reviewText}</p>
                   </div>
