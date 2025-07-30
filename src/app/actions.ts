@@ -3,6 +3,7 @@
 import { suggestMeetingPoint, type SuggestMeetingPointOutput } from '@/ai/flows/suggest-meeting-point';
 import { predictFare, type PredictFareOutput } from '@/ai/flows/predict-fare';
 import { z } from 'zod';
+import { logPrediction } from '@/lib/ml';
 
 export interface MeetingPointFormState {
   status: 'idle' | 'success' | 'error';
@@ -31,6 +32,15 @@ export async function suggestMeetingPointAction(
 
   try {
     const result = await suggestMeetingPoint({ locations: validatedFields.data.locations });
+    
+    // Log the prediction
+    await logPrediction({
+        predictionType: 'MEETING_POINT_SUGGESTION',
+        inputPayload: JSON.stringify({ locations: validatedFields.data.locations }),
+        outputPayload: JSON.stringify(result),
+        confidenceScore: null,
+    });
+
     return {
       status: 'success',
       message: 'Successfully found a meeting point.',
@@ -82,6 +92,15 @@ export async function predictFareAction(
 
   try {
     const result = await predictFare(validatedFields.data);
+    
+    // Log the prediction
+    await logPrediction({
+        predictionType: 'FARE_PREDICTION',
+        inputPayload: JSON.stringify(validatedFields.data),
+        outputPayload: JSON.stringify(result),
+        confidenceScore: null, 
+    });
+    
     return {
       status: 'success',
       message: 'Successfully estimated fare.',
