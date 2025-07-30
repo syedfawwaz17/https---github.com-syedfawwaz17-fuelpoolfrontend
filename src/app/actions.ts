@@ -56,16 +56,19 @@ export interface FareEstimatorFormState {
 const PredictFareClientSchema = z.object({
   startLocation: z.string().min(3, 'Start location must be at least 3 characters long.'),
   endLocation: z.string().min(3, 'End location must be at least 3 characters long.'),
+  fuelType: z.enum(['petrol', 'diesel', 'any']),
 });
 
 export async function predictFareAction(
   prevState: FareEstimatorFormState,
   formData: FormData
 ): Promise<FareEstimatorFormState> {
-  const startLocation = formData.get('startLocation') as string;
-  const endLocation = formData.get('endLocation') as string;
   
-  const validatedFields = PredictFareClientSchema.safeParse({ startLocation, endLocation });
+  const validatedFields = PredictFareClientSchema.safeParse({ 
+    startLocation: formData.get('startLocation'),
+    endLocation: formData.get('endLocation'),
+    fuelType: formData.get('fuelType'),
+  });
 
   if (!validatedFields.success) {
     const errors = validatedFields.error.flatten().fieldErrors;
@@ -86,9 +89,10 @@ export async function predictFareAction(
     };
   } catch (error) {
     console.error(error);
+    const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred.';
     return {
       status: 'error',
-      message: 'An error occurred while estimating the fare. Please try again.',
+      message: `An error occurred while estimating the fare: ${errorMessage}`,
       result: null,
     };
   }

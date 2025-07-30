@@ -8,7 +8,8 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { MapPin, Loader2, Sparkles, CheckCircle, DollarSign } from 'lucide-react';
+import { MapPin, Loader2, Sparkles, CheckCircle, DollarSign, Fuel } from 'lucide-react';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 const initialState: FareEstimatorFormState = {
   status: 'idle',
@@ -42,7 +43,7 @@ export function FareEstimator() {
     <Card className="shadow-lg">
       <CardHeader>
         <CardTitle>Fare Estimator</CardTitle>
-        <CardDescription>Get a fare estimate for your trip based on our prediction model.</CardDescription>
+        <CardDescription>Get a fare estimate for your trip based on real-time fuel prices.</CardDescription>
       </CardHeader>
       <form action={formAction}>
         <CardContent className="space-y-4">
@@ -71,6 +72,23 @@ export function FareEstimator() {
                 className="pl-10"
               />
             </div>
+          </div>
+           <div className="space-y-2">
+            <Label>Fuel Type</Label>
+            <RadioGroup defaultValue="any" name="fuelType" className="flex gap-4">
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="petrol" id="petrol" />
+                <Label htmlFor="petrol">Petrol</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="diesel" id="diesel" />
+                <Label htmlFor="diesel">Diesel</Label>
+              </div>
+               <div className="flex items-center space-x-2">
+                <RadioGroupItem value="any" id="any" />
+                <Label htmlFor="any">Any</Label>
+              </div>
+            </RadioGroup>
           </div>
         </CardContent>
         <CardFooter className="flex-col items-start space-y-4">
