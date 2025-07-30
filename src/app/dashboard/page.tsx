@@ -21,9 +21,10 @@ const rideHistory = [
 ];
 
 const payments = [
-    { id: 'pay1', date: '2024-07-20', amount: 45, ride: 'SF to LA' },
-    { id: 'pay2', date: '2024-07-22', amount: 30, ride: 'NYC to Boston' },
-]
+    { id: 'pay1', timestamp: '2024-07-20T18:00:00Z', amount: 45.00, status: 'completed', method: 'Card', bookingId: 'booking1' },
+    { id: 'pay2', timestamp: '2024-07-22T19:30:00Z', amount: 30.00, status: 'completed', method: 'Card', bookingId: 'booking2' },
+    { id: 'pay3', timestamp: '2024-08-01T12:00:00Z', amount: 25.00, status: 'failed', method: 'UPI', bookingId: 'booking3' },
+];
 
 const reviews = [
     { id: 'rev1', rideId: '1', reviewer: { name: 'Alex Johnson', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704a' }, rating: 5, reviewText: 'Great ride! Very punctual and friendly.', timestamp: '2024-07-21T10:00:00Z' },
@@ -49,6 +50,17 @@ export default function DashboardPage() {
       setUser(userData);
     }
   }, []);
+
+  const getStatusVariant = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'completed':
+        return 'secondary';
+      case 'failed':
+        return 'destructive';
+      default:
+        return 'default';
+    }
+  }
 
   return (
     <div>
@@ -133,15 +145,21 @@ export default function DashboardPage() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Date</TableHead>
-                    <TableHead>Ride</TableHead>
+                    <TableHead>Booking ID</TableHead>
+                    <TableHead>Method</TableHead>
+                    <TableHead>Status</TableHead>
                     <TableHead className="text-right">Amount</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {payments.map((payment) => (
                     <TableRow key={payment.id}>
-                      <TableCell>{payment.date}</TableCell>
-                      <TableCell>{payment.ride}</TableCell>
+                      <TableCell>{new Date(payment.timestamp).toLocaleDateString()}</TableCell>
+                      <TableCell className="font-mono text-xs">{payment.bookingId}</TableCell>
+                      <TableCell>{payment.method}</TableCell>
+                      <TableCell>
+                         <Badge variant={getStatusVariant(payment.status)}>{payment.status}</Badge>
+                      </TableCell>
                       <TableCell className="text-right">${payment.amount.toFixed(2)}</TableCell>
                     </TableRow>
                   ))}
