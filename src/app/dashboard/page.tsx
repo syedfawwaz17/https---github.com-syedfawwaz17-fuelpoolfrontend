@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { DollarSign, User, CreditCard, Star, MessageSquare } from 'lucide-react';
+import { DollarSign, User, CreditCard, Star, MessageSquare, PlusCircle, Car } from 'lucide-react';
 import { getUser, type UserDto } from '@/lib/auth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
@@ -30,6 +30,12 @@ const reviews = [
     { id: 'rev1', rideId: '1', reviewer: { name: 'Alex Johnson', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704a' }, rating: 5, reviewText: 'Great ride! Very punctual and friendly.', timestamp: '2024-07-21T10:00:00Z' },
     { id: 'rev2', rideId: '2', reviewer: { name: 'Samantha Bee', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704b' }, rating: 4, reviewText: 'Smooth trip, clean car. Would recommend.', timestamp: '2024-07-23T18:30:00Z' },
 ]
+
+const userCars = [
+  { id: 'car1', model: 'Toyota Camry', registrationNumber: 'ABC-123', fuelType: 'petrol', seatingCapacity: 5, year: 2021 },
+  { id: 'car2', model: 'Honda Civic', registrationNumber: 'XYZ-789', fuelType: 'diesel', seatingCapacity: 5, year: 2020 },
+];
+
 
 function StarRating({ rating }: { rating: number }) {
     return (
@@ -66,11 +72,12 @@ export default function DashboardPage() {
     <div>
       <h1 className="text-4xl font-bold font-headline mb-6">My Dashboard</h1>
       <Tabs defaultValue="history">
-        <TabsList className="grid w-full grid-cols-4 md:w-auto md:inline-flex">
+        <TabsList className="grid w-full grid-cols-5 md:w-auto md:inline-flex">
           <TabsTrigger value="history">Ride History</TabsTrigger>
           <TabsTrigger value="profile">My Profile</TabsTrigger>
           <TabsTrigger value="payments">Payments</TabsTrigger>
           <TabsTrigger value="reviews">Reviews</TabsTrigger>
+          <TabsTrigger value="cars">My Cars</TabsTrigger>
         </TabsList>
 
         <TabsContent value="history" className="mt-6">
@@ -207,6 +214,49 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
         </TabsContent>
+
+        <TabsContent value="cars" className="mt-6">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle>My Cars</CardTitle>
+                <CardDescription>Manage your registered vehicles.</CardDescription>
+              </div>
+              <Button>
+                <PlusCircle className="mr-2" />
+                Add New Car
+              </Button>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Model</TableHead>
+                    <TableHead>Registration No.</TableHead>
+                    <TableHead>Fuel Type</TableHead>
+                    <TableHead>Capacity</TableHead>
+                    <TableHead>Year</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {userCars.map((car) => (
+                    <TableRow key={car.id}>
+                      <TableCell className="font-medium flex items-center gap-2">
+                        <Car />
+                        {car.model}
+                      </TableCell>
+                      <TableCell className="font-mono">{car.registrationNumber}</TableCell>
+                      <TableCell className="capitalize">{car.fuelType}</TableCell>
+                      <TableCell>{car.seatingCapacity} seats</TableCell>
+                      <TableCell>{car.year}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
       </Tabs>
     </div>
   );
