@@ -2,7 +2,8 @@ import Image from 'next/image';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Calendar, DollarSign, MapPin } from 'lucide-react';
+import { Calendar, DollarSign, MapPin, Shield } from 'lucide-react';
+import { Badge } from './ui/badge';
 
 type Location = {
   address: string;
@@ -24,10 +25,11 @@ export type Ride = {
   };
   image: string; // Keep for UI, can be based on destination
   dataAiHint?: string;
+  ladiesOnly?: boolean;
 };
 
 export function RideCard(ride: Ride) {
-  const { pickupLocation, destination, departureTime, farePerSeat, driver, image, dataAiHint } = ride;
+  const { pickupLocation, destination, departureTime, farePerSeat, driver, image, dataAiHint, ladiesOnly } = ride;
   const driverName = driver?.name || 'Driver';
   const driverAvatar = driver?.profilePhotoUrl || '';
   
@@ -43,6 +45,12 @@ export function RideCard(ride: Ride) {
             className="rounded-t-xl object-cover"
             data-ai-hint={dataAiHint}
           />
+           {ladiesOnly && (
+            <Badge variant="secondary" className="absolute top-2 right-2 bg-pink-100 text-pink-800 border-pink-300">
+              <Shield size={14} className="mr-1" />
+              Women Only
+            </Badge>
+          )}
         </div>
       </CardHeader>
       <CardContent className="p-4">

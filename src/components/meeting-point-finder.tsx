@@ -2,7 +2,7 @@
 
 import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
-import { suggestMeetingPointAction, type FormState } from '@/app/actions';
+import { suggestMeetingPointAction, type MeetingPointFormState } from '@/app/actions';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -11,7 +11,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { MapPin, Plus, Trash2, Loader2, Sparkles, CheckCircle } from 'lucide-react';
 import React from 'react';
 
-const initialState: FormState = {
+const initialState: MeetingPointFormState = {
   status: 'idle',
   message: '',
   result: null,

@@ -17,6 +17,7 @@ const rides: Ride[] = [
     },
     image: 'https://placehold.co/600x400.png',
     dataAiHint: 'city highway',
+    ladiesOnly: true,
   },
   {
     id: '2',
@@ -43,6 +44,7 @@ const rides: Ride[] = [
     },
     image: 'https://placehold.co/600x400.png',
     dataAiHint: 'urban landscape',
+    ladiesOnly: true,
   },
   {
     id: '4',
