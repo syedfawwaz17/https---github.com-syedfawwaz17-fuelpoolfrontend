@@ -6,12 +6,12 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { DollarSign, User, CreditCard, Star, MessageSquare, PlusCircle, Car, Loader2 } from 'lucide-react';
+import { DollarSign, User, CreditCard, Star, PlusCircle, Car, Loader2 } from 'lucide-react';
 import { getUser, type UserDto } from '@/lib/auth';
 import { getRideHistory, type RideHistoryEntry } from '@/lib/bookings';
+import { getCarsByOwner, type CarDto } from '@/lib/cars';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 
@@ -26,12 +26,6 @@ const reviews = [
     { id: 'rev2', rideId: '2', reviewer: { name: 'Samantha Bee', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704b' }, rating: 4, reviewText: 'Smooth trip, clean car. Would recommend.', timestamp: '2024-07-23T18:30:00Z' },
 ]
 
-const userCars = [
-  { id: 'car1', model: 'Toyota Camry', registrationNumber: 'ABC-123', fuelType: 'petrol', seatingCapacity: 5, year: 2021 },
-  { id: 'car2', model: 'Honda Civic', registrationNumber: 'XYZ-789', fuelType: 'diesel', seatingCapacity: 5, year: 2020 },
-];
-
-
 function StarRating({ rating }: { rating: number }) {
     return (
         <div className="flex items-center">
@@ -45,7 +39,9 @@ function StarRating({ rating }: { rating: number }) {
 export default function DashboardPage() {
   const [user, setUser] = React.useState<UserDto | null>(null);
   const [rideHistory, setRideHistory] = React.useState<RideHistoryEntry[]>([]);
-  const [isLoading, setIsLoading] = React.useState(true);
+  const [userCars, setUserCars] = React.useState<CarDto[]>([]);
+  const [isLoadingHistory, setIsLoadingHistory] = React.useState(true);
+  const [isLoadingCars, setIsLoadingCars] = React.useState(true);
   const [isClient, setIsClient] = React.useState(false);
 
   React.useEffect(() => {
@@ -54,20 +50,38 @@ export default function DashboardPage() {
     if (userData) {
       setUser(userData);
       fetchRideHistory(userData.id);
+      if (userData.userType === 'driver') {
+        fetchUserCars(userData.id);
+      } else {
+        setIsLoadingCars(false);
+      }
     } else {
-        setIsLoading(false);
+        setIsLoadingHistory(false);
+        setIsLoadingCars(false);
     }
   }, []);
 
   const fetchRideHistory = async (riderId: string) => {
-    setIsLoading(true);
+    setIsLoadingHistory(true);
     try {
         const bookings = await getRideHistory(riderId);
         setRideHistory(bookings);
     } catch (error) {
         console.error("Failed to fetch ride history", error);
     } finally {
-        setIsLoading(false);
+        setIsLoadingHistory(false);
+    }
+  }
+
+  const fetchUserCars = async (ownerId: string) => {
+    setIsLoadingCars(true);
+    try {
+        const cars = await getCarsByOwner(ownerId);
+        setUserCars(cars);
+    } catch (error) {
+        console.error("Failed to fetch user cars", error);
+    } finally {
+        setIsLoadingCars(false);
     }
   }
 
@@ -105,16 +119,18 @@ export default function DashboardPage() {
     });
   }
 
+  const shouldShowCarsTab = user?.userType === 'driver';
+
   return (
     <div>
       <h1 className="text-4xl font-bold font-headline mb-6">My Dashboard</h1>
       <Tabs defaultValue="history">
-        <TabsList className="grid w-full grid-cols-5 md:w-auto md:inline-flex">
+        <TabsList className={cn("grid w-full", shouldShowCarsTab ? "grid-cols-5" : "grid-cols-4")}>
           <TabsTrigger value="history">Ride History</TabsTrigger>
           <TabsTrigger value="profile">My Profile</TabsTrigger>
           <TabsTrigger value="payments">Payments</TabsTrigger>
           <TabsTrigger value="reviews">Reviews</TabsTrigger>
-          <TabsTrigger value="cars">My Cars</TabsTrigger>
+          {shouldShowCarsTab && <TabsTrigger value="cars">My Cars</TabsTrigger>}
         </TabsList>
 
         <TabsContent value="history" className="mt-6">
@@ -124,7 +140,7 @@ export default function DashboardPage() {
               <CardDescription>A log of your past and upcoming journeys.</CardDescription>
             </CardHeader>
             <CardContent>
-              {isLoading ? (
+              {isLoadingHistory ? (
                  <div className="flex justify-center items-center h-40">
                     <Loader2 className="mr-2 h-8 w-8 animate-spin" />
                     <p>Loading your ride history...</p>
@@ -265,48 +281,62 @@ export default function DashboardPage() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="cars" className="mt-6">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <div>
-                <CardTitle>My Cars</CardTitle>
-                <CardDescription>Manage your registered vehicles.</CardDescription>
-              </div>
-              <Button>
-                <PlusCircle className="mr-2" />
-                Add New Car
-              </Button>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Model</TableHead>
-                    <TableHead>Registration No.</TableHead>
-                    <TableHead>Fuel Type</TableHead>
-                    <TableHead>Capacity</TableHead>
-                    <TableHead>Year</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {userCars.map((car) => (
-                    <TableRow key={car.id}>
-                      <TableCell className="font-medium flex items-center gap-2">
-                        <Car />
-                        {car.model}
-                      </TableCell>
-                      <TableCell className="font-mono">{car.registrationNumber}</TableCell>
-                      <TableCell className="capitalize">{car.fuelType}</TableCell>
-                      <TableCell>{car.seatingCapacity} seats</TableCell>
-                      <TableCell>{car.year}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
+        {shouldShowCarsTab && (
+          <TabsContent value="cars" className="mt-6">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle>My Cars</CardTitle>
+                  <CardDescription>Manage your registered vehicles.</CardDescription>
+                </div>
+                <Button>
+                  <PlusCircle className="mr-2" />
+                  Add New Car
+                </Button>
+              </CardHeader>
+              <CardContent>
+                 {isLoadingCars ? (
+                    <div className="flex justify-center items-center h-40">
+                      <Loader2 className="mr-2 h-8 w-8 animate-spin" />
+                      <p>Loading your cars...</p>
+                    </div>
+                 ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Model</TableHead>
+                        <TableHead>Registration No.</TableHead>
+                        <TableHead>Fuel Type</TableHead>
+                        <TableHead>Capacity</TableHead>
+                        <TableHead>Year</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {userCars.length > 0 ? userCars.map((car) => (
+                        <TableRow key={car.id}>
+                          <TableCell className="font-medium flex items-center gap-2">
+                            <Car />
+                            {car.model}
+                          </TableCell>
+                          <TableCell className="font-mono">{car.registrationNumber}</TableCell>
+                          <TableCell className="capitalize">{car.fuelType}</TableCell>
+                          <TableCell>{car.seatingCapacity} seats</TableCell>
+                          <TableCell>{car.year}</TableCell>
+                        </TableRow>
+                      )) : (
+                         <TableRow>
+                            <TableCell colSpan={5} className="text-center h-24">
+                                You have not added any cars yet.
+                            </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                 )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        )}
       </Tabs>
     </div>
   );
