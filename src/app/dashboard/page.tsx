@@ -63,8 +63,12 @@ export default function DashboardPage() {
         return 'secondary';
       case 'failed':
         return 'destructive';
-      default:
+      case 'upcoming':
         return 'default';
+      case 'cancelled':
+        return 'destructive';
+      default:
+        return 'outline';
     }
   }
 
@@ -102,10 +106,10 @@ export default function DashboardPage() {
                     <TableRow key={ride.id}>
                       <TableCell>{ride.from}</TableCell>
                       <TableCell>{ride.to}</TableCell>
-                      <TableCell>{ride.date}</TableCell>
+                      <TableCell>{new Date(ride.date).toLocaleDateString()}</TableCell>
                       <TableCell>${ride.price}</TableCell>
                       <TableCell>
-                        <Badge variant={ride.status === 'Completed' ? 'secondary' : 'default'}>{ride.status}</Badge>
+                        <Badge variant={getStatusVariant(ride.status)}>{ride.status}</Badge>
                       </TableCell>
                     </TableRow>
                   ))}
