@@ -28,9 +28,10 @@ export async function login(data: LoginInput) {
   if (response.data.token) {
     if (typeof window !== "undefined") {
       localStorage.setItem("token", response.data.token);
-      // Store user data as well, only if it exists
-      if (response.data.user) {
-        localStorage.setItem('user', JSON.stringify(response.data.user));
+      // After setting token, fetch user data
+      const user = await getMe();
+      if (user) {
+        localStorage.setItem('user', JSON.stringify(user));
       }
     }
   }
@@ -41,6 +42,17 @@ export async function registerUser(data: RegisterInput) {
   const response = await api.post("/users/register", data);
   return response.data;
 }
+
+export async function getMe(): Promise<UserDto | null> {
+    try {
+        const response = await api.get('/users/me');
+        return response.data;
+    } catch (error) {
+        console.error("Failed to fetch user data", error);
+        return null;
+    }
+}
+
 
 export function logout() {
   if (typeof window !== "undefined") {
