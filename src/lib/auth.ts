@@ -15,13 +15,23 @@ export const registerSchema = z.object({
 export type LoginInput = z.infer<typeof loginSchema>;
 export type RegisterInput = z.infer<typeof registerSchema>;
 
+export type UserDto = {
+    id: string;
+    name: string;
+    email: string;
+    phone?: string;
+    profilePhotoUrl?: string;
+}
+
 export async function login(data: LoginInput) {
   const response = await api.post("/auth/login", data);
   if (response.data.token) {
     if (typeof window !== "undefined") {
       localStorage.setItem("token", response.data.token);
-      // Store user data as well
-      localStorage.setItem('user', JSON.stringify(response.data.user));
+      // Store user data as well, only if it exists
+      if (response.data.user) {
+        localStorage.setItem('user', JSON.stringify(response.data.user));
+      }
     }
   }
   return response.data;
@@ -48,10 +58,18 @@ export function getToken() {
   return null;
 }
 
-export function getUser() {
+export function getUser(): UserDto | null {
     if (typeof window !== "undefined") {
         const user = localStorage.getItem("user");
-        return user ? JSON.parse(user) : null;
+        // Ensure user is not null, undefined, or the string "undefined" before parsing
+        if (user && user !== "undefined") {
+            try {
+                return JSON.parse(user);
+            } catch (error) {
+                console.error("Failed to parse user from localStorage", error);
+                return null;
+            }
+        }
     }
     return null;
 }
