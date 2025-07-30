@@ -12,7 +12,7 @@ const rides: Ride[] = [
     price: 45,
     driverName: 'Jane Doe',
     driverAvatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704d',
-    image: 'https://placehold.co/600x400/3CB371/FFFFFF',
+    image: 'https://placehold.co/600x400.png',
     dataAiHint: 'city highway',
   },
   {
@@ -22,7 +22,7 @@ const rides: Ride[] = [
     price: 30,
     driverName: 'John Smith',
     driverAvatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704e',
-    image: 'https://placehold.co/600x400/ADD8E6/FFFFFF',
+    image: 'https://placehold.co/600x400.png',
     dataAiHint: 'coastal road',
   },
   {
@@ -32,7 +32,7 @@ const rides: Ride[] = [
     price: 25,
     driverName: 'Emily White',
     driverAvatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704f',
-    image: 'https://placehold.co/600x400/3CB371/FFFFFF',
+    image: 'https://placehold.co/600x400.png',
     dataAiHint: 'urban landscape',
   },
   {
@@ -42,7 +42,7 @@ const rides: Ride[] = [
     price: 20,
     driverName: 'Michael Brown',
     driverAvatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704g',
-    image: 'https://placehold.co/600x400/ADD8E6/FFFFFF',
+    image: 'https://placehold.co/600x400.png',
     dataAiHint: 'sunny highway',
   },
     {
@@ -52,7 +52,7 @@ const rides: Ride[] = [
     price: 55,
     driverName: 'Sarah Green',
     driverAvatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704h',
-    image: 'https://placehold.co/600x400/3CB371/FFFFFF',
+    image: 'https://placehold.co/600x400.png',
     dataAiHint: 'mountain road',
   },
   {
@@ -62,7 +62,7 @@ const rides: Ride[] = [
     price: 15,
     driverName: 'David Lee',
     driverAvatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704i',
-    image: 'https://placehold.co/600x400/ADD8E6/FFFFFF',
+    image: 'https://placehold.co/600x400.png',
     dataAiHint: 'forest drive',
   },
 ];
