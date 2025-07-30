@@ -13,6 +13,7 @@ import { getUser, type UserDto } from '@/lib/auth';
 import { getRideHistory, type RideHistoryEntry } from '@/lib/bookings';
 import { getCarsByOwner, type CarDto } from '@/lib/cars';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { cn } from '@/lib/utils';
 
 
 const payments = [
