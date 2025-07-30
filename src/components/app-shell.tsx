@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   SidebarProvider,
   Sidebar,
@@ -28,23 +28,41 @@ import { Button } from './ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Leaf, Search, Map, LayoutDashboard, LogIn, User, LogOut, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { getToken, logout } from '@/lib/auth';
 
-// Mock auth hook
 const useAuth = () => {
   const [isAuthenticated, setIsAuthenticated] = React.useState(false);
-  // In a real app, this would check a token or session
-  return { isAuthenticated, login: () => setIsAuthenticated(true), logout: () => setIsAuthenticated(false) };
+
+  React.useEffect(() => {
+    const token = getToken();
+    setIsAuthenticated(!!token);
+  }, []);
+
+  const handleLogout = () => {
+    logout();
+    setIsAuthenticated(false);
+  };
+
+  return { isAuthenticated, logout: handleLogout };
 };
 
 export function AppShell({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated } = useAuth(); // Using mock auth
+  const { isAuthenticated } = useAuth();
   const pathname = usePathname();
+  const router = useRouter();
 
   const menuItems = [
     { href: '/', label: 'Ride Search', icon: Search },
     { href: '/smart-route', label: 'Smart Route', icon: Map },
     { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, auth: true },
   ];
+
+  React.useEffect(() => {
+    const protectedRoutes = menuItems.filter(item => item.auth).map(item => item.href);
+    if (!isAuthenticated && protectedRoutes.includes(pathname)) {
+      router.push('/login');
+    }
+  }, [isAuthenticated, pathname, router, menuItems]);
 
   return (
     <SidebarProvider>
@@ -121,7 +139,6 @@ function Header() {
 function UserMenu({ mobile = false }: { mobile?: boolean }) {
   const { logout } = useAuth();
   const commonClasses = "flex items-center gap-2";
-  const dropdownTriggerClasses = "cursor-pointer";
 
   if (mobile) {
     return (
