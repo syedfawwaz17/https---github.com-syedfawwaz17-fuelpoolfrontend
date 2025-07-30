@@ -31,8 +31,6 @@ export default function LoginPage() {
     setIsLoading(true);
     try {
       await login(data);
-      // The success toast is removed to provide a smoother redirect experience.
-      // The user will be redirected immediately upon success.
       router.push('/dashboard');
     } catch (error: any) {
       toast({

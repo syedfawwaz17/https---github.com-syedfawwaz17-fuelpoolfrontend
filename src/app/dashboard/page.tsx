@@ -1,3 +1,6 @@
+"use client";
+
+import * as React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,6 +10,8 @@ import { Separator } from '@/components/ui/separator';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { DollarSign, User, CreditCard } from 'lucide-react';
+import { getUser, type UserDto } from '@/lib/auth';
+
 
 const rideHistory = [
   { id: '1', from: 'San Francisco, CA', to: 'Los Angeles, CA', date: '2024-07-20', price: 45, status: 'Completed' },
@@ -20,6 +25,15 @@ const payments = [
 ]
 
 export default function DashboardPage() {
+  const [user, setUser] = React.useState<UserDto | null>(null);
+
+  React.useEffect(() => {
+    const userData = getUser();
+    if (userData) {
+      setUser(userData);
+    }
+  }, []);
+
   return (
     <div>
       <h1 className="text-4xl font-bold font-headline mb-6">My Dashboard</h1>
@@ -74,15 +88,15 @@ export default function DashboardPage() {
             <CardContent className="space-y-4">
                <div className="space-y-2">
                 <Label htmlFor="name">Full Name</Label>
-                <Input id="name" defaultValue="John Doe" />
+                <Input id="name" defaultValue={user?.name} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="email">Email Address</Label>
-                <Input id="email" type="email" defaultValue="john.doe@example.com" />
+                <Input id="email" type="email" defaultValue={user?.email} />
               </div>
                <div className="space-y-2">
                 <Label htmlFor="phone">Phone Number</Label>
-                <Input id="phone" type="tel" defaultValue="+1 234 567 890" />
+                <Input id="phone" type="tel" defaultValue={user?.phone} />
               </div>
             </CardContent>
             <CardFooter>

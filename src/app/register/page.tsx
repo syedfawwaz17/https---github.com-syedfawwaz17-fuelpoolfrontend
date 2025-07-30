@@ -21,8 +21,7 @@ export default function RegisterPage() {
   const form = useForm<RegisterInput>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
-      firstName: '',
-      lastName: '',
+      name: '',
       email: '',
       password: '',
     },
@@ -63,34 +62,19 @@ export default function RegisterPage() {
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
+               <FormField
                   control={form.control}
-                  name="firstName"
+                  name="name"
                   render={({ field }) => (
                     <FormItem className="grid gap-2">
-                      <FormLabel>First name</FormLabel>
+                      <FormLabel>Full name</FormLabel>
                       <FormControl>
-                        <Input placeholder="Max" {...field} />
+                        <Input placeholder="John Doe" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="lastName"
-                  render={({ field }) => (
-                    <FormItem className="grid gap-2">
-                      <FormLabel>Last name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Robinson" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
               <FormField
                 control={form.control}
                 name="email"

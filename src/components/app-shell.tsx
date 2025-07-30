@@ -28,18 +28,22 @@ import { Button } from './ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Leaf, Search, Map, LayoutDashboard, LogIn, User, LogOut, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { getToken, logout } from '@/lib/auth';
+import { getToken, logout, getUser, type UserDto } from '@/lib/auth';
 import { useToast } from '@/hooks/use-toast';
 
 
 const useAuth = () => {
+  const [user, setUser] = React.useState<UserDto | null>(null);
   const [isAuthenticated, setIsAuthenticated] = React.useState(false);
   const { toast } = useToast();
-  const router = useRouter();
 
   React.useEffect(() => {
     const token = getToken();
+    const userData = getUser();
     setIsAuthenticated(!!token);
+    if(userData) {
+      setUser(userData)
+    }
   }, []);
 
   const handleLogout = () => {
@@ -50,7 +54,7 @@ const useAuth = () => {
     });
   };
 
-  return { isAuthenticated, logout: handleLogout };
+  return { isAuthenticated, user, logout: handleLogout };
 };
 
 export function AppShell({ children }: { children: React.ReactNode }) {
@@ -148,7 +152,7 @@ function Header() {
 
 
 function UserMenu({ mobile = false }: { mobile?: boolean }) {
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
   const router = useRouter();
   
   const handleLogout = () => {
@@ -156,6 +160,8 @@ function UserMenu({ mobile = false }: { mobile?: boolean }) {
   }
 
   const commonClasses = "flex items-center gap-2";
+  const userName = user?.name || "User";
+  const userAvatarFallback = userName.charAt(0).toUpperCase();
 
   if (mobile) {
     return (
@@ -163,8 +169,8 @@ function UserMenu({ mobile = false }: { mobile?: boolean }) {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Avatar className="h-9 w-9 cursor-pointer">
-              <AvatarImage src="https://i.pravatar.cc/150?u=a042581f4e29026704d" alt="User" />
-              <AvatarFallback>U</AvatarFallback>
+              <AvatarImage src={user?.profilePhotoUrl} alt={userName} />
+              <AvatarFallback>{userAvatarFallback}</AvatarFallback>
             </Avatar>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
@@ -189,10 +195,10 @@ function UserMenu({ mobile = false }: { mobile?: boolean }) {
         <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="flex items-center gap-2">
                 <Avatar className="h-8 w-8">
-                    <AvatarImage src="https://i.pravatar.cc/150?u=a042581f4e29026704d" alt="User" />
-                    <AvatarFallback>U</AvatarFallback>
+                    <AvatarImage src={user?.profilePhotoUrl} alt={userName} />
+                    <AvatarFallback>{userAvatarFallback}</AvatarFallback>
                 </Avatar>
-                <span className="text-sm font-medium">User Name</span>
+                <span className="text-sm font-medium">{userName}</span>
                 <ChevronDown size={16} />
             </Button>
         </DropdownMenuTrigger>
