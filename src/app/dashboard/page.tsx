@@ -9,8 +9,9 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { DollarSign, User, CreditCard } from 'lucide-react';
+import { DollarSign, User, CreditCard, Star, MessageSquare } from 'lucide-react';
 import { getUser, type UserDto } from '@/lib/auth';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 
 const rideHistory = [
@@ -23,6 +24,21 @@ const payments = [
     { id: 'pay1', date: '2024-07-20', amount: 45, ride: 'SF to LA' },
     { id: 'pay2', date: '2024-07-22', amount: 30, ride: 'NYC to Boston' },
 ]
+
+const reviews = [
+    { id: 'rev1', rideId: '1', reviewer: { name: 'Alex Johnson', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704a' }, rating: 5, reviewText: 'Great ride! Very punctual and friendly.', timestamp: '2024-07-21T10:00:00Z' },
+    { id: 'rev2', rideId: '2', reviewer: { name: 'Samantha Bee', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704b' }, rating: 4, reviewText: 'Smooth trip, clean car. Would recommend.', timestamp: '2024-07-23T18:30:00Z' },
+]
+
+function StarRating({ rating }: { rating: number }) {
+    return (
+        <div className="flex items-center">
+            {[...Array(5)].map((_, i) => (
+                <Star key={i} size={16} className={i < rating ? 'text-yellow-400 fill-current' : 'text-gray-300'} />
+            ))}
+        </div>
+    )
+}
 
 export default function DashboardPage() {
   const [user, setUser] = React.useState<UserDto | null>(null);
@@ -38,10 +54,11 @@ export default function DashboardPage() {
     <div>
       <h1 className="text-4xl font-bold font-headline mb-6">My Dashboard</h1>
       <Tabs defaultValue="history">
-        <TabsList className="grid w-full grid-cols-3 md:w-auto md:inline-flex">
+        <TabsList className="grid w-full grid-cols-4 md:w-auto md:inline-flex">
           <TabsTrigger value="history">Ride History</TabsTrigger>
           <TabsTrigger value="profile">My Profile</TabsTrigger>
           <TabsTrigger value="payments">Payments</TabsTrigger>
+          <TabsTrigger value="reviews">Reviews</TabsTrigger>
         </TabsList>
 
         <TabsContent value="history" className="mt-6">
@@ -141,6 +158,35 @@ export default function DashboardPage() {
                 </div>
                 <Button variant="outline">Manage Payments</Button>
              </CardFooter>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="reviews" className="mt-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Your Reviews</CardTitle>
+              <CardDescription>Feedback you've received from other users.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {reviews.map((review) => (
+                <div key={review.id} className="flex gap-4">
+                  <Avatar>
+                    <AvatarImage src={review.reviewer.avatar} alt={review.reviewer.name} />
+                    <AvatarFallback>{review.reviewer.name.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1">
+                    <div className="flex justify-between items-center">
+                       <p className="font-semibold">{review.reviewer.name}</p>
+                       <StarRating rating={review.rating} />
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {new Date(review.timestamp).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                    </p>
+                    <p className="mt-2 text-foreground bg-slate-50 p-3 rounded-md border">{review.reviewText}</p>
+                  </div>
+                </div>
+              ))}
+            </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
