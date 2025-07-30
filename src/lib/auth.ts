@@ -4,12 +4,15 @@ import { z } from "zod";
 export const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(1, "Password is required"),
+  userType: z.enum(["rider", "driver"]),
 });
 
 export const registerSchema = z.object({
   name: z.string().min(1, "Name is required"),
   email: z.string().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
+  userType: z.enum(["rider", "driver"]),
+  gender: z.enum(["male", "female", "other"]),
 });
 
 export type LoginInput = z.infer<typeof loginSchema>;
@@ -21,6 +24,8 @@ export type UserDto = {
     email: string;
     phone?: string;
     profilePhotoUrl?: string;
+    userType?: 'rider' | 'driver' | 'admin';
+    gender?: 'male' | 'female' | 'other';
 }
 
 export async function login(data: LoginInput) {
@@ -79,6 +84,8 @@ export function getUser(): UserDto | null {
                 return JSON.parse(user);
             } catch (error) {
                 console.error("Failed to parse user from localStorage", error);
+                // If parsing fails, remove the invalid item
+                localStorage.removeItem("user");
                 return null;
             }
         }

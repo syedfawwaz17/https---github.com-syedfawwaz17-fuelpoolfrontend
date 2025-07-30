@@ -12,6 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { registerUser, registerSchema, type RegisterInput } from '@/lib/auth';
 import { Leaf, Loader2 } from 'lucide-react';
 import React from 'react';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -24,6 +25,8 @@ export default function RegisterPage() {
       name: '',
       email: '',
       password: '',
+      userType: 'rider',
+      gender: 'other',
     },
   });
 
@@ -48,7 +51,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-[calc(100vh-10rem)]">
+    <div className="flex items-center justify-center min-h-[calc(100vh-10rem)] py-8">
       <Card className="mx-auto max-w-sm w-full shadow-2xl bg-card/60 backdrop-blur-xl border border-white/20">
         <CardHeader className="text-center">
            <div className="flex justify-center items-center mb-4">
@@ -96,6 +99,82 @@ export default function RegisterPage() {
                     <FormLabel>Password</FormLabel>
                     <FormControl>
                       <Input type="password" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="userType"
+                render={({ field }) => (
+                  <FormItem className="space-y-3">
+                    <FormLabel>I am a...</FormLabel>
+                    <FormControl>
+                      <RadioGroup
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        className="flex space-x-4"
+                      >
+                        <FormItem className="flex items-center space-x-2 space-y-0">
+                          <FormControl>
+                            <RadioGroupItem value="rider" />
+                          </FormControl>
+                          <FormLabel className="font-normal">
+                            Rider
+                          </FormLabel>
+                        </FormItem>
+                        <FormItem className="flex items-center space-x-2 space-y-0">
+                          <FormControl>
+                            <RadioGroupItem value="driver" />
+                          </FormControl>
+                          <FormLabel className="font-normal">
+                            Driver
+                          </FormLabel>
+                        </FormItem>
+                      </RadioGroup>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="gender"
+                render={({ field }) => (
+                  <FormItem className="space-y-3">
+                    <FormLabel>Gender</FormLabel>
+                    <FormControl>
+                      <RadioGroup
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        className="flex space-x-4"
+                      >
+                        <FormItem className="flex items-center space-x-2 space-y-0">
+                          <FormControl>
+                            <RadioGroupItem value="female" />
+                          </FormControl>
+                          <FormLabel className="font-normal">
+                            Woman
+                          </FormLabel>
+                        </FormItem>
+                        <FormItem className="flex items-center space-x-2 space-y-0">
+                          <FormControl>
+                            <RadioGroupItem value="male" />
+                          </FormControl>
+                          <FormLabel className="font-normal">
+                            Man
+                          </FormLabel>
+                        </FormItem>
+                         <FormItem className="flex items-center space-x-2 space-y-0">
+                          <FormControl>
+                            <RadioGroupItem value="other" />
+                          </FormControl>
+                          <FormLabel className="font-normal">
+                            Other
+                          </FormLabel>
+                        </FormItem>
+                      </RadioGroup>
                     </FormControl>
                     <FormMessage />
                   </FormItem>

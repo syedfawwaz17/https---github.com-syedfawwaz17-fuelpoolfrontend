@@ -13,6 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { login, loginSchema, type LoginInput } from '@/lib/auth';
 import { Leaf, Loader2 } from 'lucide-react';
 import React from 'react';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -24,6 +25,7 @@ export default function LoginPage() {
     defaultValues: {
       email: '',
       password: '',
+      userType: 'rider',
     },
   });
 
@@ -53,7 +55,7 @@ export default function LoginPage() {
                 </div>
             </div>
           <CardTitle className="text-2xl font-headline">Welcome Back</CardTitle>
-          <CardDescription>Enter your email below to login to your account</CardDescription>
+          <CardDescription>Enter your credentials to login to your account</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -84,6 +86,40 @@ export default function LoginPage() {
                     </div>
                     <FormControl>
                       <Input type="password" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+               <FormField
+                control={form.control}
+                name="userType"
+                render={({ field }) => (
+                  <FormItem className="space-y-3">
+                    <FormLabel>Login as</FormLabel>
+                    <FormControl>
+                      <RadioGroup
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        className="flex space-x-4"
+                      >
+                        <FormItem className="flex items-center space-x-2 space-y-0">
+                          <FormControl>
+                            <RadioGroupItem value="rider" />
+                          </FormControl>
+                          <FormLabel className="font-normal">
+                            Rider
+                          </FormLabel>
+                        </FormItem>
+                        <FormItem className="flex items-center space-x-2 space-y-0">
+                          <FormControl>
+                            <RadioGroupItem value="driver" />
+                          </FormControl>
+                          <FormLabel className="font-normal">
+                            Driver
+                          </FormLabel>
+                        </FormItem>
+                      </RadioGroup>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
